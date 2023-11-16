@@ -44,6 +44,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
@@ -68,6 +69,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="admin.aspx" />
+    <Content Include="App_Data\KarateSchool%281%29.mdf" />
+    <Content Include="App_Data\KarateSchool%281%29_log.ldf">
+      <DependentUpon>KarateSchool%281%29.mdf</DependentUpon>
+    </Content>
     <Content Include="home.aspx" />
     <Content Include="instructor.aspx" />
     <Content Include="login.aspx" />
@@ -96,6 +101,11 @@
     <Compile Include="instructor.aspx.designer.cs">
       <DependentUpon>instructor.aspx</DependentUpon>
     </Compile>
+    <Compile Include="KarateSchool.designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>KarateSchool.dbml</DependentUpon>
+    </Compile>
     <Compile Include="login.aspx.cs">
       <DependentUpon>login.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -120,6 +130,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="KarateSchool.dbml">
+      <Generator>MSLinqToSQLGenerator</Generator>
+      <LastGenOutput>KarateSchool.designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </Content>
+    <None Include="KarateSchool.dbml.layout">
+      <DependentUpon>KarateSchool.dbml</DependentUpon>
+    </None>
     <None Include="packages.config" />
     <Content Include="Site1.Master" />
     <None Include="Web.Debug.config">
@@ -128,6 +146,9 @@
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
