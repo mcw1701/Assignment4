@@ -115,6 +115,8 @@ namespace Assignment4
 		
 		private string _InstructorPhoneNumber;
 		
+		private EntitySet<Section> _Sections;
+		
 		private EntityRef<NetUser> _NetUser;
 		
     #region Extensibility Method Definitions
@@ -133,6 +135,7 @@ namespace Assignment4
 		
 		public Instructor()
 		{
+			this._Sections = new EntitySet<Section>(new Action<Section>(this.attach_Sections), new Action<Section>(this.detach_Sections));
 			this._NetUser = default(EntityRef<NetUser>);
 			OnCreated();
 		}
@@ -221,6 +224,19 @@ namespace Assignment4
 			}
 		}
 		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Instructor_Section", Storage="_Sections", ThisKey="InstructorID", OtherKey="Instructor_ID")]
+		public EntitySet<Section> Sections
+		{
+			get
+			{
+				return this._Sections;
+			}
+			set
+			{
+				this._Sections.Assign(value);
+			}
+		}
+		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="NetUser_Instructor", Storage="_NetUser", ThisKey="InstructorID", OtherKey="UserID", IsForeignKey=true)]
 		public NetUser NetUser
 		{
@@ -274,6 +290,18 @@ namespace Assignment4
 				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
 		}
+		
+		private void attach_Sections(Section entity)
+		{
+			this.SendPropertyChanging();
+			entity.Instructor = this;
+		}
+		
+		private void detach_Sections(Section entity)
+		{
+			this.SendPropertyChanging();
+			entity.Instructor = null;
+		}
 	}
 	
 	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Section")]
@@ -296,7 +324,7 @@ namespace Assignment4
 		
 		private EntityRef<Member> _Member;
 		
-		private EntityRef<NetUser> _NetUser;
+		private EntityRef<Instructor> _Instructor;
 		
     #region Extensibility Method Definitions
     partial void OnLoaded();
@@ -319,7 +347,7 @@ namespace Assignment4
 		public Section()
 		{
 			this._Member = default(EntityRef<Member>);
-			this._NetUser = default(EntityRef<NetUser>);
+			this._Instructor = default(EntityRef<Instructor>);
 			OnCreated();
 		}
 		
@@ -418,7 +446,7 @@ namespace Assignment4
 			{
 				if ((this._Instructor_ID != value))
 				{
-					if (this._NetUser.HasLoadedOrAssignedValue)
+					if (this._Instructor.HasLoadedOrAssignedValue)
 					{
 						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
 					}
@@ -485,36 +513,36 @@ namespace Assignment4
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="NetUser_Section", Storage="_NetUser", ThisKey="Instructor_ID", OtherKey="UserID", IsForeignKey=true)]
-		public NetUser NetUser
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Instructor_Section", Storage="_Instructor", ThisKey="Instructor_ID", OtherKey="InstructorID", IsForeignKey=true)]
+		public Instructor Instructor
 		{
 			get
 			{
-				return this._NetUser.Entity;
+				return this._Instructor.Entity;
 			}
 			set
 			{
-				NetUser previousValue = this._NetUser.Entity;
+				Instructor previousValue = this._Instructor.Entity;
 				if (((previousValue != value) 
-							|| (this._NetUser.HasLoadedOrAssignedValue == false)))
+							|| (this._Instructor.HasLoadedOrAssignedValue == false)))
 				{
 					this.SendPropertyChanging();
 					if ((previousValue != null))
 					{
-						this._NetUser.Entity = null;
+						this._Instructor.Entity = null;
 						previousValue.Sections.Remove(this);
 					}
-					this._NetUser.Entity = value;
+					this._Instructor.Entity = value;
 					if ((value != null))
 					{
 						value.Sections.Add(this);
-						this._Instructor_ID = value.UserID;
+						this._Instructor_ID = value.InstructorID;
 					}
 					else
 					{
 						this._Instructor_ID = default(int);
 					}
-					this.SendPropertyChanged("NetUser");
+					this.SendPropertyChanged("Instructor");
 				}
 			}
 		}
@@ -807,8 +835,6 @@ namespace Assignment4
 		
 		private EntityRef<Instructor> _Instructor;
 		
-		private EntitySet<Section> _Sections;
-		
 		private EntityRef<Member> _Member;
 		
     #region Extensibility Method Definitions
@@ -828,7 +854,6 @@ namespace Assignment4
 		public NetUser()
 		{
 			this._Instructor = default(EntityRef<Instructor>);
-			this._Sections = new EntitySet<Section>(new Action<Section>(this.attach_Sections), new Action<Section>(this.detach_Sections));
 			this._Member = default(EntityRef<Member>);
 			OnCreated();
 		}
@@ -942,19 +967,6 @@ namespace Assignment4
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="NetUser_Section", Storage="_Sections", ThisKey="UserID", OtherKey="Instructor_ID")]
-		public EntitySet<Section> Sections
-		{
-			get
-			{
-				return this._Sections;
-			}
-			set
-			{
-				this._Sections.Assign(value);
-			}
-		}
-		
 		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="NetUser_Member", Storage="_Member", ThisKey="UserID", OtherKey="Member_UserID", IsUnique=true, IsForeignKey=false)]
 		public Member Member
 		{
@@ -1002,18 +1014,6 @@ namespace Assignment4
 			{
 				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
-		}
-		
-		private void attach_Sections(Section entity)
-		{
-			this.SendPropertyChanging();
-			entity.NetUser = this;
-		}
-		
-		private void detach_Sections(Section entity)
-		{
-			this.SendPropertyChanging();
-			entity.NetUser = null;
 		}
 	}
 }
