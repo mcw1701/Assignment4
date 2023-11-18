@@ -37,10 +37,5 @@
             </asp:ContentPlaceHolder>
         </div>
     </form>
-    <nav class="navbar navbar-expand-sm fixed-bottom">
-        <div class="container-fluid">
-            <span class="navbar-text">Placeholder Text</span>
-        </div>
-    </nav>
 </body>
 </html>
