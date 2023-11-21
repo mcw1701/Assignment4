@@ -11,92 +11,53 @@ namespace Assignment4
 {
     public partial class login : System.Web.UI.Page
     {
+        //Establishing Connection and Authentication 
+        KarateSchoolDataContext dbcon;
+        string conn = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=\"C:\\Users\\maeso\\OneDrive - North Dakota University System\\Desktop\\CompSci\\GitHub\\Assignment4\\Assignment4\\App_Data\\KarateSchool(1).mdf\";Integrated Security=True;Connect Timeout=30";
+
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            dbcon = new KarateSchoolDataContext(conn);
         }
-        //Establishing Connection and Authentication 
-        SqlConnection dbcon;
-        string conn = "Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename=C:\\Users\\cadek\\Desktop\\Kellar\\Assignment4-main\\Assignment4-main\\App_Data\\KarateSchool(1).mdf;Integrated Security=True;Connect Timeout=30";
+
         protected void Login1_Authenticate(object sender, AuthenticateEventArgs e)
         {
-            string userName = Login1.UserName;
-            string pass = Login1.Password;
+            string username = Login1.UserName;
+            string password = Login1.Password;
 
-            string userType = "";
-            string dbUser = "";
-            string dbPass = "";
-           
-            
-            //Getting User info from the table
-            using (SqlConnection connection = new SqlConnection(conn))
+            var user = from u in dbcon.NetUsers
+                       where u.UserName == username &&
+                       u.UserPassword == password
+                       select u;
+
+            if (user.Count() != 0)
             {
-                connection.Open();
-                string query = "SELECT UserType, UserName, UserPassword FROM NetUser WHERE UserName = @UserName;";
-
-                using (SqlCommand cmd = new SqlCommand(query, connection))
+                string id = user.FirstOrDefault().UserID.ToString();
+                bool rememberMe = Login1.RememberMeSet;
+                FormsAuthentication.SetAuthCookie(username, rememberMe);
+                Session.Add(id, username);
+                string type = user.FirstOrDefault().UserType.ToString();
+                if (type == "Member")
                 {
-                    cmd.Parameters.AddWithValue("@UserName", userName);
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            userType = reader["UserType"].ToString();
-                            dbUser = reader["UserName"].ToString();
-                            dbPass = reader["Password"].ToString();
-                        }
-                    }
+                    Response.Redirect("~/userPages/member.aspx", true);
                 }
-            }
-            //Checks the role and sends to what they are 
-            if (userType == "Member" && dbUser == userName && dbPass == pass)
-            {
-                FormsAuthentication.RedirectFromLoginPage(userName, true);
-                Response.Redirect("member.aspx", true);
-            }
-            else if (userType == "Instructor" && dbUser == userName && dbPass == pass)
-            {
-                FormsAuthentication.RedirectFromLoginPage(userName, true);
-                Response.Redirect("instructor.aspx", true);
-            }
-            else if (userType == "Administrator" && dbUser == userName && dbPass == pass)
-            {
-                FormsAuthentication.RedirectFromLoginPage(userName, true);
-                Response.Redirect("administrator.aspx", true);
+                else if (type == "Instructor")
+                {
+                    Response.Redirect("~/userPages/instructor.aspx", true);
+                }
+                else if (type == "Administrator")
+                {
+                    Response.Redirect("~/userPages/admin.aspx", true);
+                }
+                else
+                {
+                    Response.Redirect("login.aspx", true);
+                }
             }
             else
-                Response.Redirect("login.aspx", true);
-
-        }
-
-        //UserID get
-        public int GetUserID(string username)
-        {
-            string userIDStr = "";
-
-            using (SqlConnection connection = new SqlConnection(conn))
             {
-                connection.Open();
-                string query = "SELECT UserID FROM NetUSer WHERE UserName = @UserName;";
-
-                using (SqlCommand cmd = new SqlCommand(query, connection))
-                {
-                    cmd.Parameters.AddWithValue("@UserName", username);
-
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            userIDStr = reader["UserID"].ToString();
-
-                        }
-                    }
-                }
+                Response.Redirect("login.aspx", true);
             }
-
-            //String to integer
-            int userID = int.Parse(userIDStr);
-            return userID;
         }
     }
 }
